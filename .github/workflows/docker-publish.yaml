@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch: # Allow manual triggering of the workflow
 
 permissions:
   contents: read
@@ -20,11 +21,9 @@ jobs:
       matrix:
         image:
           - {type: "games", image: "source", PREFIX: "", SUFFIX: "", context: "./games/source", platforms: "linux/amd64"}
-
           - {type: "generic", image: "alpine", PREFIX: "", SUFFIX: "", context: "./generic/alpine", platforms: "linux/amd64,linux/arm64"}
           - {type: "generic", image: "debian", PREFIX: "", SUFFIX: "", context: "./generic/debian", platforms: "linux/amd64,linux/arm64"}
           - {type: "generic", image: "ubi"   , PREFIX: "", SUFFIX: "", context: "./generic/ubi"   , platforms: "linux/amd64,linux/arm64"}
-
           - {type: "go", image: "1.19", PREFIX: "go", SUFFIX: "", context: "./go", platforms: "linux/amd64,linux/arm64"}
           - {type: "go", image: "1.20", PREFIX: "go", SUFFIX: "", context: "./go", platforms: "linux/amd64,linux/arm64"}
           - {type: "go", image: "1.21", PREFIX: "go", SUFFIX: "", context: "./go", platforms: "linux/amd64,linux/arm64"}
@@ -69,14 +68,14 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ ssecrets.ACCOUNT_TOKEN }}
 
-      - name: Login to Quay
-        uses: docker/login-action@v3
-        with:
-          registry: quay.io
-          username: matthewp
-          password: ${{ secrets.QUAY_SECRET }}
+     # - name: Login to Quay
+     #   uses: docker/login-action@v3
+     #   with:
+     #     registry: quay.io
+     #     username: matthewp
+     #     password: ${{ secrets.QUAY_SECRET }}
 
       - name: Build and Push
         uses: docker/build-push-action@v5
@@ -86,5 +85,4 @@ jobs:
           platforms: ${{ matrix.image.platforms }}
           push: true
           tags: |
-            ghcr.io/matthewpi/images:${{ matrix.image.PREFIX }}${{ matrix.image.image }}${{ matrix.image.SUFFIX }}
-            quay.io/matthewp/pterodactyl:${{ matrix.image.PREFIX }}${{ matrix.image.image }}${{ matrix.image.SUFFIX }}
+            ghcr.io/cerberus-labs-technologies/images:${{ matrix.image.PREFIX }}${{ matrix.image.image }}${{ matrix.image.SUFFIX }}
